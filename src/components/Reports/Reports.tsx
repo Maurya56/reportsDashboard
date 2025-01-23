@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { Button, Tabs } from 'antd';
-import styled from 'styled-components';
-import Grid from '../Grids/Grid';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../../store';
-import IndividualReport from './IndividualReport';
+import React, { useEffect, useState } from "react";
+import { Button, Tabs } from "antd";
+import styled from "styled-components";
+import Grid from "../Grids/Grid";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../store";
+import IndividualReport from "./IndividualReport";
+import { ReportsState } from "../../features/reports/reportsTypes";
 
 const { TabPane } = Tabs;
 
@@ -24,45 +25,56 @@ const FolderIcon = styled.div`
 `;
 
 const Reports: React.FC = () => {
-  const [activeTab, setActiveTab] = useState('0');
+  const [activeTab, setActiveTab] = useState("0");
   const reportsState = useSelector((state: RootState) => state.reports);
-const dispatch = useDispatch();
+  const [csvReports, setCSVReports] = useState<ReportsState>(reportsState);
+  const dispatch = useDispatch();
 
-  useEffect(()=>{
-console.log("check")
-  },[dispatch])
-  
+  useEffect(() => {
+    setCSVReports(reportsState);
+  }, [dispatch, reportsState]);
+  console.log(csvReports, "csv");
   return (
     <ReportsContainer>
-      
-    <Tabs activeKey={activeTab} onChange={setActiveTab}>
-    
-      {reportsState.folders.map((folder, folderIndex) => (
-        
-        
-        <TabPane tab={folder.name} key={folderIndex.toString()}>
- {folder.csvFiles.length>0 ?
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h1>Reports</h1>
-            <Button type="primary">Group Report</Button>
-          </div>
-           : null}
-          {
-          // folder.csvFiles.length === 0 ? (
-          //   <FolderIcon>📁</FolderIcon>
-          // ) : 
-
-        
-          (
-            folder.csvFiles.map((csvFile, csvFileIndex) => (
-            <IndividualReport key={csvFileIndex} csvFile={csvFile}  folderId={folder.id}/>
-            ))
-          )}
-        </TabPane>
-        
-      ))}
-    </Tabs>
-  </ReportsContainer>
+      <Tabs activeKey={activeTab} onChange={setActiveTab}>
+        {csvReports.folders.map((folder, folderIndex) => (
+          <TabPane tab={folder.name} key={folderIndex.toString()}>
+            {folder.csvFiles.length > 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <h1>Reports</h1>
+                <Button type="primary">Group Report</Button>
+              </div>
+            ) : null}
+            {folder.csvFiles.length === 0 ? (
+              <div
+                style={{
+                  flex: 1,
+                  color: "gray",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                Add Some Files Here
+              </div>
+            ) : (
+              folder.csvFiles.map((csvFile, csvFileIndex) => (
+                <IndividualReport
+                  key={csvFileIndex}
+                  csvFile={csvFile}
+                  folderId={folder.id}
+                />
+              ))
+            )}
+          </TabPane>
+        ))}
+      </Tabs>
+    </ReportsContainer>
   );
 };
 

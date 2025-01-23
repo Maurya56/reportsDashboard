@@ -2,6 +2,7 @@ export interface CsvFile {
     id: string;
     name: string;
     reports: Report[];
+    
   }
   
   export interface Folder {
@@ -23,5 +24,7 @@ export interface CsvFile {
     id: string;
     name: string;
     isActive: boolean;
+
+
     // other report fields
   }

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Upload, Button, message, Select, Modal } from 'antd';
 import { FolderAddOutlined, UploadOutlined } from '@ant-design/icons';
 import { HeaderContainer } from './HeaderStyles';
@@ -18,6 +18,9 @@ const Header: React.FC = () => {
     const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
     const [displayModal, setDisplayModal] = useState<boolean>(false);
     const [folderName, setFolderName] = useState<string>('');
+    const folder=useSelector((state:RootState)=> state.reports.folders)
+
+    const selectedFolderId= folder.find((f:any)=> f.name===selectedFolder)?.id
     const handleFileUpload = (file: File) => {
         if (!selectedFolder) {
             toast.error('Please select a folder to upload the CSV file.');
@@ -43,7 +46,7 @@ const Header: React.FC = () => {
       
               // Dispatch the parsed CSV data to Redux
               dispatch(addCsvFile({
-                folderId: selectedFolder ?? '',
+                folderId: selectedFolderId ? selectedFolderId : '',
                 csvFile: {
                   id: uuidv4(),
                   name: file.name,
@@ -64,12 +67,19 @@ const Header: React.FC = () => {
       
         reader.onerror = () => {
         toast.error('Error reading the file.');
-    
         };
       
         // Read the file content as a text string
         reader.readAsText(file);
       
+      };
+
+      const handleFolderChange = (value: string) => {
+        setSelectedFolder(value);
+        const selectedFolder = folders.find(folder => folder.id === value);
+        if (selectedFolder) {
+          setFolderName(selectedFolder.name);
+        }
       };
 
       const handleCreateFolder = () => {
@@ -95,7 +105,7 @@ const Header: React.FC = () => {
       <Select
         placeholder="Select Folder"
         style={{ width: 200, marginRight: 16 }}
-        onChange={setSelectedFolder}
+        onChange={handleFolderChange}
         value={selectedFolder}
       >
         {folders.map(folder => (

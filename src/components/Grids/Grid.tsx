@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { AgGridReact } from 'ag-grid-react';
 import 'ag-grid-community/styles/ag-grid.css';
 import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { GridContainer } from './GridStyle';
+import { RowGroupingModule, RowGroupingPanelModule } from "ag-grid-enterprise";
 import {
   ClientSideRowModelModule,
   ColDef,
@@ -26,11 +27,14 @@ ModuleRegistry.registerModules([
   NumberFilterModule,
   DateFilterModule,
   CustomFilterModule,
+  RowGroupingModule,
+  RowGroupingPanelModule,
 
 ]);
 
 
-const Grid: React.FC<{ rowData: any[] }> = ({ rowData }) => {
+const Grid: React.FC<{ rowData: any[],rowGroup:string }> = ({ rowData ,rowGroup}) => {
+
 
   const columnDefs: ColDef[] = rowData.length > 0
     ? Object.keys(rowData[0]).map((key) => {
@@ -42,6 +46,7 @@ const Grid: React.FC<{ rowData: any[] }> = ({ rowData }) => {
           filter: true,
           minWidth: 150, 
           cellClass: 'cell-wrap-text', 
+          rowGroup: key==rowGroup ?  true : false,
           valueFormatter: isNumeric
             ? (params) => {
                 if (key === 'Volume') {
@@ -62,7 +67,7 @@ const Grid: React.FC<{ rowData: any[] }> = ({ rowData }) => {
         columnDefs={columnDefs}
         pagination={true}
         rowHeight={40}
-       
+        
       />
     </GridContainer>
   );
