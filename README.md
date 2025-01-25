@@ -19,7 +19,8 @@ Remove unwanted folders or CSV files.
 **Grouping and Filtering:**
 Group reports by tags or dates and filter data for better analysis.
 
-**Technologies Used**
+**Technologies Used:**
+
 **React:** Frontend library for building the user interface.
 
 **TypeScript:** Adds static typing to JavaScript for better code quality.
