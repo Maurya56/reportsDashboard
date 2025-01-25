@@ -69,8 +69,8 @@ const IndividualReport: React.FC<IndividualReportProps> = ({
         title={<Title level={4}>{csvFile.name}</Title>}
         extra={
           <Space>
-            <Tooltip title={csvFile.isActive ? "InActive" : "Active"}>
-              <Switch checked={csvFile.isActive} onChange={handleToggle} />
+            <Tooltip title={csvFile.isActive ? "Active" : "InActive"}>
+              <Switch checked={!csvFile.isActive} onChange={handleToggle} />
             </Tooltip>
             <Popconfirm
               title="Are you sure you want to delete this file?"
