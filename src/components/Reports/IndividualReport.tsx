@@ -1,99 +1,130 @@
-import React, { useEffect, useState } from 'react'
-import { CsvFile } from '../../features/reports/reportsTypes';
-import Grid from '../Grids/Grid';
-import { FlexRowDivStyle } from '../Sidebar/SidebarStyles';
-import { DeleteOutlined, DownOutlined, UpOutlined } from '@ant-design/icons';
-import { useDispatch } from 'react-redux';
-import { removeCsvFile } from '../../features/reports/reportsSlice';
-import { Button, Select } from 'antd';
+import React from "react";
+import { useCallback, useEffect, useState } from "react";
+import { CsvFile } from "../../features/reports/reportsTypes";
+import Grid from "../Grids/Grid";
+import { DeleteOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import {
+  removeCsvFile,
+  setVisibilityStateForNormalReports,
+} from "../../features/reports/reportsSlice";
+import {
+  Button,
+  Select,
+  Switch,
+  Typography,
+  Space,
+  Tooltip,
+  Popconfirm,
+} from "antd";
+import { GridContainer } from "../Grids/styles/GridStyle";
+import { StyledCard, ControlsContainer } from "./styles/IndividualReportStyle";
+import { IndividualReportProps } from "./types/IndividualReportTypes";
 
+const { Option } = Select;
+const { Title } = Typography;
 
+const IndividualReport: React.FC<IndividualReportProps> = ({
+  csvFile,
+  folderId,
+}) => {
+  const dispatch = useDispatch();
+  const [hideReports, setHideReports] = useState<boolean>(false);
+  const [reportKeys, setReportKeys] = useState<string[]>([]);
+  const [displayCollapseButton, setDisplayCollapseButton] =
+    useState<boolean>(true);
+  const [selectTag, setSelectedTag] = useState<string>("");
 
-interface IndividualReportProps {
-csvFile: CsvFile;
-folderId: string;
-
-}
-
-const {Option}=Select
-const IndividualReport: React.FC<IndividualReportProps> = ({csvFile,folderId}) => {
-   const dispatch=useDispatch();
-   const [hideReports, setHideReports] = useState<boolean>(false);
-   const [rowGroup,setRowGroup]=useState<boolean>(false);
-   const [reportKeys,setReportKeys]=useState<any>([]);
-   const [selectTag,setSelectedTag]=useState<string>('')
-
-
-
-   useEffect(() => {
-    console.log("Dumb")
+  useEffect(() => {
     if (csvFile?.reports.length > 0) {
       if (reportKeys.length < 1) {
-        let findKeys: string[] = [];
-        Object.keys(csvFile.reports[0]).forEach((key) => findKeys.push(key));
+        const findKeys: string[] = Object.keys(csvFile.reports[0]);
         setReportKeys(findKeys);
       }
     }
-  }, [csvFile]);
-  
+  }, [csvFile, reportKeys.length]);
 
-    const handleDeleteFile = () => {
+  const handleToggle = useCallback(() => {
+    dispatch(
+      setVisibilityStateForNormalReports({
+        folderId,
+        csvFileId: csvFile.id,
+        isActive: !csvFile.isActive,
+      })
+    );
+  }, [dispatch, folderId, csvFile.id, csvFile.isActive]);
+
+  useEffect(() => {
+    setHideReports(csvFile.isActive);
+    setDisplayCollapseButton(!csvFile.isActive);
+  }, [csvFile.isActive]);
+
+  const handleDeleteFile = () => {
     dispatch(removeCsvFile({ folderId, csvFileId: csvFile.id }));
-    }
+  };
+
   return (
-    <div  style={{margin:'8px', display:'flex',flexDirection:'column'}}>
-        <FlexRowDivStyle $gap='12px' style={{backgroundColor:'lightblue', padding:'8px',flexWrap: 'wrap'}}>
-        <h3 style={{minWidth: '150px'}}>{csvFile.name}</h3>
-        <div style={{display:'flex', gap:'8px',minWidth: '200px', flexWrap:'wrap'}}>
-
-<div>
-
-
-        <Select
-        placeholder="Select Tag"
-        style={{ width: 200, marginRight: 16 }}
-        onChange={setSelectedTag}
-        value={selectTag}
+    <>
+      <StyledCard
+        title={<Title level={4}>{csvFile.name}</Title>}
+        extra={
+          <Space>
+            <Tooltip title={csvFile.isActive ? "InActive" : "Active"}>
+              <Switch checked={csvFile.isActive} onChange={handleToggle} />
+            </Tooltip>
+            <Popconfirm
+              title="Are you sure you want to delete this file?"
+              onConfirm={handleDeleteFile}
+              okText="Yes"
+              cancelText="No"
+            >
+              <Tooltip title="Delete file">
+                <Button icon={<DeleteOutlined />} danger />
+              </Tooltip>
+            </Popconfirm>
+          </Space>
+        }
       >
-        {reportKeys.map((tag,index) => (
-          <Option key={index} value={tag}>
-            {tag}
-          </Option>
-        ))}
-      </Select>
-      </div>
-      <div>
-
-     
-          <Button onClick={()=>setSelectedTag('')} disabled={selectTag==''}>Clear Tags</Button>
-          </div>
-          <div>
-          <DeleteOutlined onClick={handleDeleteFile} />
-          </div>
-        <div>
-
-     
-        {hideReports ? <DownOutlined onClick={()=>setHideReports(prev=>!prev)}/> : <UpOutlined  onClick={()=>setHideReports(prev=>!prev)}/>}
-        </div>
-        </div>
-        
-        </FlexRowDivStyle>
-
-        {!hideReports &&
-        <>
+        <ControlsContainer>
+          <Select
+            placeholder="Select Tag"
+            style={{ width: "100%", maxWidth: 200 }}
+            onChange={setSelectedTag}
+            value={selectTag}
+          >
+            {reportKeys.map((tag, index) => (
+              <Option key={index} value={tag}>
+                {tag}
+              </Option>
+            ))}
+          </Select>
+          <Button
+            onClick={() => setSelectedTag("")}
+            disabled={selectTag === ""}
+          >
+            Clear Tags
+          </Button>
+          {displayCollapseButton && (
+            <Tooltip title={hideReports ? "Show reports" : "Hide reports"}>
+              <Button
+                icon={hideReports ? <DownOutlined /> : <UpOutlined />}
+                onClick={() => setHideReports((prev) => !prev)}
+              />
+            </Tooltip>
+          )}
+        </ControlsContainer>
+      </StyledCard>
+      {!hideReports && (
+        <GridContainer>
           {csvFile.reports.length > 0 ? (
-        
             <Grid rowData={csvFile.reports} rowGroup={selectTag} />
           ) : (
             <p>No reports available</p>
           )}
-        </>
+        </GridContainer>
+      )}
+    </>
+  );
+};
 
-        }
-    
-  
-  </div>
-  )
-}
-
-export default IndividualReport
+export default IndividualReport;

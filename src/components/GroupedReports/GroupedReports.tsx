@@ -1,50 +1,47 @@
-// // components/GroupedReports/GroupedReports.tsx
-// import React, { useState } from 'react';
-// import styled from 'styled-components';
-// import { groupReportsByDate } from '../../utils/groupReports';
-// import { useSelector } from 'react-redux';
-// import { RootState } from '../../store';
+import React from "react";
+import { useState } from "react";
+import { DeleteOutlined, DownOutlined, UpOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { removeGroupedReports } from "../../features/reports/reportsSlice";
+import { Button, Space, Typography } from "antd";
+import GroupedGrid from "../Grids/GroupedGrid";
+import { StyledCard } from "./GroupedReportStyles";
+import { IndividualReportProps } from "./GroupedReportTypes";
 
-// const GroupContainer = styled.div`
-//   margin-bottom: 20px;
-// `;
+const { Title } = Typography;
 
-// const GroupHeader = styled.h3`
-//   cursor: pointer;
-//   display: flex;
-//   align-items: center;
-// `;
+const GroupedReport: React.FC<IndividualReportProps> = ({ file, folderId }) => {
+  const dispatch = useDispatch();
+  const [hideReports, setHideReports] = useState<boolean>(false);
 
-// const GroupedReports: React.FC = () => {
-//   const reports = useSelector((state: RootState) => state.reports.reports);
-//   const groupedByDate = groupReportsByDate(reports);
-//   const [expandedGroups, setExpandedGroups] = useState<{ [key: string]: boolean }>({});
+  const handleDeleteFile = () => {
+    dispatch(removeGroupedReports({ folderId: folderId, id: file.id }));
+  };
 
-//   const toggleGroup = (date: string) => {
-//     setExpandedGroups(prev => ({
-//       ...prev,
-//       [date]: !prev[date],
-//     }));
-//   };
+  return (
+    <StyledCard
+      title={<Title level={4}>{file.name}</Title>}
+      extra={
+        <Space>
+          <Button
+            icon={hideReports ? <DownOutlined /> : <UpOutlined />}
+            onClick={() => setHideReports((prev) => !prev)}
+          />
+          <Button icon={<DeleteOutlined />} onClick={handleDeleteFile} danger />
+        </Space>
+      }
+    >
+      {!hideReports && (
+        <>
+          {file ? (
+            <GroupedGrid rowData={file.rows} />
+          ) : (
+            <p>No reports available</p>
+          )}
+        </>
+      )}
+    </StyledCard>
+  );
+};
 
-//   return (
-//     <div>
-//       {Object.entries(groupedByDate).map(([date, reports]) => (
-//         <GroupContainer key={date}>
-//           <GroupHeader onClick={() => toggleGroup(date)}>
-//             {date} {expandedGroups[date] ? '▼' : '▶'}
-//           </GroupHeader>
-//           {expandedGroups[date] && (
-//             <ul>
-//               {reports.map(report => (
-//                 <li key={report.id}>{report.id}</li>
-//               ))}
-//             </ul>
-//           )}
-//         </GroupContainer>
-//       ))}
-//     </div>
-//   );
-// };
-
-// export default GroupedReports;
+export default GroupedReport;

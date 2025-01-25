@@ -5,6 +5,7 @@
   "dependencies": {
     "@ant-design/icons": "^5.6.0",
     "@reduxjs/toolkit": "^2.5.0",
+    "@shadcn/ui": "^0.0.4",
     "@testing-library/react": "^16.2.0",
     "ag-grid-community": "^33.0.4",
     "ag-grid-enterprise": "^33.0.4",
