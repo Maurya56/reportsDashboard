@@ -39,7 +39,7 @@ Group reports by tags or dates and filter data for better analysis.
 **React-Toastify:**
  Displays toast notifications for user feedback.
 
-**AG-Grid: **
+**AG-Grid:**
 Powerful grid component for displaying and interacting with tabular data.
 
 
